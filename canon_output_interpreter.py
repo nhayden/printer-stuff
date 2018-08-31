@@ -101,7 +101,20 @@ for param in params:
 	## Start printing
 	elif pcode == '73':
 		print("Start print / end of job/page")
-		print(args)
+		#print(args)
+		
+		## cut interval stuff
+		print("\tCut interval: {} (hex: {})".format(
+			int("".join(args[3:5]), 16), " ".join(args[3:5])), end="")
+		print(" (No cut)") if args[3:5] == ['00', '00'] else print()
+		
+		## page vs job end
+		print("\tPage|Job: {} (hex: {})".format(
+			{"01": "page", "02": "job"}[args[5]], args[5]
+		))
+		
+		## param1
+		print("\tparam1 (hex): {}".format(args[6]))
 	
 	## unknown command code
 	else:
