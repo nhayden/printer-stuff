@@ -68,14 +68,23 @@ for param in params:
 			int("".join(args[11:15]), 16), " ".join(args[11:15])
 		))
 		
-	
 	## Execute raster skip
 	elif pcode == '65':
 		print("Execute raster skip")
+		args = split_bytes(param)
+		#print(" ".join(args))
+		print("\tRaster skip: {} (hex: {})".format(
+			int("".join(args[3:5]), 16), " ".join(args[3:5])
+		))
 	
 	## Execute block skip
 	elif pcode == '45':
 		print("Execute block skip")
+		args = split_bytes(param)
+		print(" ".join(args))
+		print("\tBlock skip: {} (hex: {})".format(
+			int("".join(args[3:5]), 16), " ".join(args[3:5])
+		))
 	
 	## MYSTERY COMMAND (undocumented raster transfer)
 	elif pcode == '66':
