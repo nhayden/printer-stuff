@@ -25,15 +25,19 @@ for param in params:
 	if pcode == '4b':
 		print("Beginning of job")
 		init_code = split_bytes(param)[3]
-		print("\tINIT: "+{"00": "Start to print", "01": "Start to register form",
-		"03": "Start to overlay (Basic)","04": "Start to overlay (MASK)"}[init_code])
+		print('\tINIT: {} ({})'.format(
+			  {"00": "Start to print", "01": "Start to register form",
+		       "03": "Start to overlay (Basic)","04": "Start to overlay (MASK)"}[init_code],
+			   init_code))
 	
 	## Set compression mode
 	elif pcode == '62':
 		print("Set compression mode")
-		#print("\t"+param)
-		print("\tCompression mode: ", end="")
-		print({"00":"uncompressed data","01":"compressed data"}[split_bytes(param)[3]])
+		compression_code = split_bytes(param)[3]
+		print("\tCompression mode: {} ({})".format(
+			{"00":"uncompressed data","01":"compressed data"}[compression_code],
+			compression_code
+		))
 	
 	## Set print parameters
 	elif pcode == '70':
@@ -45,12 +49,13 @@ for param in params:
 	## Number of copies
 	elif pcode == '6e':
 		print("Number of copies")
-		print(param)
-		print("\tCopies: "+ " ".join(split_bytes(param)[3:5]))
+		hex_num_copies = split_bytes(param)[3:5]
+		print("\tCopies (in hex): {}".format(" ".join(hex_num_copies)))
 	
 	## Specify image transfer order
 	elif pcode == '75':
 		print("Specify image transfer order")
+		print(" ".join(split_bytes(param)))
 	
 	## Execute raster skip
 	elif pcode == '65':
