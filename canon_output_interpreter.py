@@ -55,7 +55,19 @@ for param in params:
 	## Specify image transfer order
 	elif pcode == '75':
 		print("Specify image transfer order")
-		print(" ".join(split_bytes(param)))
+		#print(" ".join(split_bytes(param)))
+		args = split_bytes(param)
+		print("\tTransfer order: {} {} {} {} ({} {} {} {})".format(
+			chr(int(args[3], 16)), chr(int(args[4], 16)), chr(int(args[5], 16)), chr(int(args[6], 16)),
+			args[3], args[4], args[5], args[6]
+		))
+		print("\tOther transfer data (masks, etc in hex): {} {} {} {}".format(
+			args[7], args[8], args[9], args[10]
+		))
+		print("\tRaster count: {} (hex: {})".format(
+			int("".join(args[11:15]), 16), " ".join(args[11:15])
+		))
+		
 	
 	## Execute raster skip
 	elif pcode == '65':
