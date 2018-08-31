@@ -20,11 +20,12 @@ with open (sys.argv[1], 'rb') as f:
 
 for param in params:
 	pcode = param[0:2]
+	args = split_bytes(param)
 	
 	## Beginning of job
 	if pcode == '4b':
 		print("Beginning of job")
-		init_code = split_bytes(param)[3]
+		init_code = args[3]
 		print('\tINIT: {} ({})'.format(
 			  {"00": "Start to print", "01": "Start to register form",
 		       "03": "Start to overlay (Basic)","04": "Start to overlay (MASK)"}[init_code],
@@ -33,7 +34,7 @@ for param in params:
 	## Set compression mode
 	elif pcode == '62':
 		print("Set compression mode")
-		compression_code = split_bytes(param)[3]
+		compression_code = args[3]
 		print("\tCompression mode: {} ({})".format(
 			{"00":"uncompressed data","01":"compressed data"}[compression_code],
 			compression_code
@@ -42,21 +43,20 @@ for param in params:
 	## Set print parameters
 	elif pcode == '70':
 		print("Set print parameters")
-		print("\t" + " ".join(split_bytes(param)[1:]))
-		if len(split_bytes(param)[1:]) != 42:
+		print("\t" + " ".join(args[1:]))
+		if len(args[1:]) != 42:
 			print("ERROR: INCORRECT NUMBER OF PRINT PARAMETERS")
 	
 	## Number of copies
 	elif pcode == '6e':
 		print("Number of copies")
-		hex_num_copies = split_bytes(param)[3:5]
+		hex_num_copies = args[3:5]
 		print("\tCopies (in hex): {}".format(" ".join(hex_num_copies)))
 	
 	## Specify image transfer order
 	elif pcode == '75':
 		print("Specify image transfer order")
 		#print(" ".join(split_bytes(param)))
-		args = split_bytes(param)
 		print("\tTransfer order: {} {} {} {} ({} {} {} {})".format(
 			chr(int(args[3], 16)), chr(int(args[4], 16)), chr(int(args[5], 16)), chr(int(args[6], 16)),
 			args[3], args[4], args[5], args[6]
@@ -71,7 +71,6 @@ for param in params:
 	## Execute raster skip
 	elif pcode == '65':
 		print("Execute raster skip")
-		args = split_bytes(param)
 		#print(" ".join(args))
 		print("\tRaster skip: {} (hex: {})".format(
 			int("".join(args[3:5]), 16), " ".join(args[3:5])
@@ -80,8 +79,7 @@ for param in params:
 	## Execute block skip
 	elif pcode == '45':
 		print("Execute block skip")
-		args = split_bytes(param)
-		print(" ".join(args))
+		#print(" ".join(args))
 		print("\tBlock skip: {} (hex: {})".format(
 			int("".join(args[3:5]), 16), " ".join(args[3:5])
 		))
@@ -93,10 +91,17 @@ for param in params:
 	## Maintenance commands
 	elif pcode == '6d':
 		print("Maintenance commands")
+		#print(" ".join(args))
+		#print("{}".format(args[:7]))
+		if args[:7] != ['6d', '01', '00', '77', '05', '03', 'c4']:
+			print("\tUNDOCUMENTED MAINTENANCE COMMANDS")
+		else:
+			print("\tReceived correct parameters for dotcount maint. cmds")
 	
 	## Start printing
 	elif pcode == '73':
-		print("Start printing")
+		print("Start print / end of job/page")
+		print(args)
 	
 	## unknown command code
 	else:
