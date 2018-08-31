@@ -12,7 +12,7 @@ import subprocess, sys, re, os
 
 ## assumes first byte is command code
 def split_bytes(s):
-  return re.split("(\w\w)", s[2:])[1::2]
+  return re.split("(\w\w)", s)[1::2]
 
 with open (sys.argv[1], 'rb') as f:
 	hexdata = f.read().hex()
@@ -24,29 +24,29 @@ for param in params:
 	## Beginning of job
 	if pcode == '4b':
 		print("Beginning of job")
-		init_codes = {"00": "Start to print", "01": "Start to register form",
-					  "03": "Start to overlay (Basic)", "04": "Start to overlay (MASK)"}
-		print("\tINIT: " + init_codes[split_bytes(param)[3]])
+		init_code = split_bytes(param)[3]
+		print("\tINIT: "+{"00": "Start to print", "01": "Start to register form",
+		"03": "Start to overlay (Basic)","04": "Start to overlay (MASK)"}[init_code])
 	
 	## Set compression mode
 	elif pcode == '62':
 		print("Set compression mode")
+		#print("\t"+param)
 		print("\tCompression mode: ", end="")
-		if split_bytes(param)[2] == "00":
-			print("uncompressed data")
-		elif split_bytes(param)[2] == "01":
-			print("compressed data")
-		else:
-			print("ERROR--UNKNOWN ARGUMENT")
+		print({"00":"uncompressed data","01":"compressed data"}[split_bytes(param)[3]])
 	
 	## Set print parameters
 	elif pcode == '70':
 		print("Set print parameters")
-		print("\t" + " ".join(split_bytes(param)))
+		print("\t" + " ".join(split_bytes(param)[1:]))
+		if len(split_bytes(param)[1:]) != 42:
+			print("ERROR: INCORRECT NUMBER OF PRINT PARAMETERS")
 	
 	## Number of copies
 	elif pcode == '6e':
 		print("Number of copies")
+		print(param)
+		print("\tCopies: "+ " ".join(split_bytes(param)[3:5]))
 	
 	## Specify image transfer order
 	elif pcode == '75':
@@ -62,7 +62,7 @@ for param in params:
 	
 	## MYSTERY COMMAND (undocumented raster transfer)
 	elif pcode == '66':
-		print("MYSTERY COMMAND (undocumented raster transfer")
+		print("MYSTERY COMMAND (undocumented raster transfer)")
 	
 	## Maintenance commands
 	elif pcode == '6d':
