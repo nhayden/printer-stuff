@@ -14,6 +14,14 @@ import subprocess, sys, re, os
 def split_bytes(s):
   return re.split("(\w\w)", s)[1::2]
 
+def output_param(param_idx, param_name, val, byte_str=None):
+	num_and_name = "\t({:02d})".format(param_idx) 
+	num_and_name += "{} : ".format(param_name).rjust(39)
+	num_and_name += "{} ".format(val)
+	if byte_str is not None:
+		num_and_name += "({})".format(byte_str)
+	print(num_and_name)
+
 with open (sys.argv[1], 'rb') as f:
 	hexdata = f.read().hex()
 	params = hexdata.split(r'1b')[1:]
@@ -46,6 +54,30 @@ for param in params:
 		print("\t" + " ".join(args[1:]))
 		if len(args[1:]) != 42:
 			print("ERROR: INCORRECT NUMBER OF PRINT PARAMETERS")
+		output_param(1, "Paper Form", {"00":"Label/Gap", "01":"Tag/Marker",
+			"02":"Tag/No TOF", "03":"Label/Marker"}[args[3]], args[3])
+		output_param(2, "data_type (fixed value)", args[4])
+		output_param(3, "Paper length (dots)", int("".join(args[5:7]), 16), "".join(args[5:7]))
+		output_param(4, "Paper width (dots)", int("".join(args[7:9]), 16), "".join(args[7:9]))
+		output_param(5, "Top margin (dots)", int("".join(args[9:11]), 16), "".join(args[9:11]))
+		output_param(6, "Print area length (dots)", int("".join(args[11:13]), 16), "".join(args[11:13]))
+		output_param(7, "Left margin (dots)", int("".join(args[13:15]), 16), "".join(args[13:15]))
+		output_param(8, "Print area width (dots)", int("".join(args[15:17]), 16), "".join(args[15:17]))
+		output_param(9, "Gap length (dots)", int("".join(args[17:19]), 16), "".join(args[17:19]))
+		output_param(10, "Mark length (dots)", int("".join(args[19:21]), 16), "".join(args[19:21]))
+		output_param(25, "Print area horiz. byte size (bytes)", int("".join(args[21:23]), 16), "".join(args[21:23]))
+		output_param(11, "Media type number", {"01":"Matte label paper", "02":"Glossy label paper",
+			"03":"Synthetic paper", "04":"Matte tag", "05":"Thin matte tag"}[args[23]], args[23])
+		## External option/Color mode/Rotation
+		output_param(12, "External option/Color mode/Rotation", args[24])
+		print("\t\t\t{}: {}".format("180degree rotated", int(args[24], 16) & (1<<1) != 0))
+		print("\t\t\t{}: {}".format("Color Mode", "Full color" if (int(args[24], 16) & (1<<3) == 0) else "Monochrome"))
+		print("\t\t\t{}: {}".format("External option",
+			"External option invalid" if (int(args[24], 16) & (1<<4) == 0) else "Auto cutter valid"))
+		
+		## Print speed
+		output_param(13, "Print speed (mm/sec)",
+			"Auto" if int(args[25], 16) == 0 else 10 * int(args[25], 16), args[25])
 	
 	## Number of copies
 	elif pcode == '6e':
@@ -87,6 +119,13 @@ for param in params:
 	## MYSTERY COMMAND (undocumented raster transfer)
 	elif pcode == '66':
 		print("MYSTERY COMMAND (undocumented raster transfer)")
+		big_endian_xfer_size = int("".join(args[2:0:-1]), 16)
+		print("\tNumber of bytes being sent: {} (little endian hex: {})".format(
+			big_endian_xfer_size, " ".join(args[1:3])))
+		if (big_endian_xfer_size + 3 != len(args)):
+			print("ERROR: improper num bytes sent")
+		
+		print(" ".join(args))
 	
 	## Maintenance commands
 	elif pcode == '6d':
