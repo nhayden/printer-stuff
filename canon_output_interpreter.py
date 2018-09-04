@@ -26,7 +26,7 @@ for param in params:
 	if pcode == '4b':
 		print("Beginning of job")
 		init_code = args[3]
-		print('\tINIT: {} ({})'.format(
+		print('\tINIT: {} (hex: {})'.format(
 			  {"00": "Start to print", "01": "Start to register form",
 		       "03": "Start to overlay (Basic)","04": "Start to overlay (MASK)"}[init_code],
 			   init_code))
@@ -35,7 +35,7 @@ for param in params:
 	elif pcode == '62':
 		print("Set compression mode")
 		compression_code = args[3]
-		print("\tCompression mode: {} ({})".format(
+		print("\tCompression mode: {} (hex: {})".format(
 			{"00":"uncompressed data","01":"compressed data"}[compression_code],
 			compression_code
 		))
