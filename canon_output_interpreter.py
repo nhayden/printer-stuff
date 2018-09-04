@@ -65,19 +65,37 @@ for param in params:
 		output_param(8, "Print area width (dots)", int("".join(args[15:17]), 16), "".join(args[15:17]))
 		output_param(9, "Gap length (dots)", int("".join(args[17:19]), 16), "".join(args[17:19]))
 		output_param(10, "Mark length (dots)", int("".join(args[19:21]), 16), "".join(args[19:21]))
-		output_param(25, "Print area horiz. byte size (bytes)", int("".join(args[21:23]), 16), "".join(args[21:23]))
 		output_param(11, "Media type number", {"01":"Matte label paper", "02":"Glossy label paper",
 			"03":"Synthetic paper", "04":"Matte tag", "05":"Thin matte tag"}[args[23]], args[23])
 		## External option/Color mode/Rotation
 		output_param(12, "External option/Color mode/Rotation", args[24])
-		print("\t\t\t{}: {}".format("180degree rotated", int(args[24], 16) & (1<<1) != 0))
-		print("\t\t\t{}: {}".format("Color Mode", "Full color" if (int(args[24], 16) & (1<<3) == 0) else "Monochrome"))
-		print("\t\t\t{}: {}".format("External option",
+		print("\t\t\t{} : {}".format("180degree rotated".rjust(17), int(args[24], 16) & (1<<1) != 0))
+		print("\t\t\t{} : {}".format("Color Mode".rjust(17), "Full color" if (int(args[24], 16) & (1<<3) == 0) else "Monochrome"))
+		print("\t\t\t{} : {}".format("External option".rjust(17),
 			"External option invalid" if (int(args[24], 16) & (1<<4) == 0) else "Auto cutter valid"))
 		
 		## Print speed
 		output_param(13, "Print speed (mm/sec)",
 			"Auto" if int(args[25], 16) == 0 else 10 * int(args[25], 16), args[25])
+		
+		## Feed interval
+		output_param(14, "Feed interval (sec)",
+			"Auto" if int(args[26], 16) == 0 else int(args[26], 16) / 10, args[26])
+		
+		## Reserved / unused block
+		print("\t(15-19 reserved / unused)")
+		
+		## Registered form ID
+		output_param(20, "Form ID", int("".join(args[31:33]), 16), "".join(args[31:33]))
+		
+		## Resolution parameters
+		output_param(21, "Input horizontal resolution (dpi)", int("".join(args[33:35]), 16), "".join(args[33:35]))
+		output_param(22, "Input vertical resolution (dpi)", int("".join(args[35:37]), 16), "".join(args[35:37]))
+		output_param(23, "Output horizontal resolution (dpi)", int("".join(args[37:39]), 16), "".join(args[37:39]))
+		output_param(24, "Output vertical resolution (dpi)", int("".join(args[39:41]), 16), "".join(args[39:41]))
+		output_param(25, "Print area horiz. byte size (bytes)", int("".join(args[21:23]), 16), "".join(args[21:23]))
+		
+		print("\t(26-27 reserved / unused)")
 	
 	## Number of copies
 	elif pcode == '6e':
@@ -116,9 +134,9 @@ for param in params:
 			int("".join(args[3:5]), 16), " ".join(args[3:5])
 		))
 	
-	## MYSTERY COMMAND (undocumented raster transfer)
+	## Esc f (block image transfer) (undocumented raster transfer)
 	elif pcode == '66':
-		print("MYSTERY COMMAND (undocumented raster transfer)")
+		print("Esc f (block image transfer: undocumented raster transfer)")
 		big_endian_xfer_size = int("".join(args[2:0:-1]), 16)
 		print("\tNumber of bytes being sent: {} (little endian hex: {})".format(
 			big_endian_xfer_size, " ".join(args[1:3])))
