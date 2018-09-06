@@ -9,16 +9,54 @@ import subprocess, sys, re, os
 ## invoke from within printer-stuff directory:
 ## python3 canon_output_interpreter.py /cygdrive/c/Users/nhayden.SEANET/Documents/Output.prn
 
-
-## assumes first byte is command code
-def split_bytes(s):
-  return re.split("(\w\w)", s)[1::2]
-
 def twos_comp(val_str, nbytes=1):
   import sys
   val = int(val_str, 16)
   b = val.to_bytes(nbytes, byteorder=sys.byteorder, signed=False)
   return int.from_bytes(b, byteorder=sys.byteorder, signed=True)
+
+def is_compressed(hex_val):
+  tc = twos_comp(hex_val)
+  return tc <= -1 and tc >= -127
+def is_uncompressed(hex_val):
+  tc = twos_comp(hex_val)
+  return tc >= 0 and tc <= 127
+
+def length_of_raster_data(rdata, verbose=False):
+  total_data_length = 0
+  while rdata:
+    control_byte_decimal = abs(twos_comp(rdata[0])) + 1
+    if is_compressed(rdata[0]):
+      count = control_byte_decimal
+      if verbose:
+        s = "compressed num={} : {}".format(
+          count, (rdata[1] + " ") * count
+          )
+        print(s)
+      rdata = rdata[2:]
+      # print("comp rdata: {}".format(rdata))
+      total_data_length += count
+    elif is_uncompressed(rdata[0]):
+      count = control_byte_decimal
+      range_end_exclusive = control_byte_decimal+1
+      if verbose:
+        s = "uncompressed num={} : {}".format(
+          count, " ".join(rdata[1:range_end_exclusive])
+        )
+        print(s)
+      rdata = rdata[range_end_exclusive:]
+      # print("uncomp rdata: {}".format(rdata))
+      total_data_length += count
+    else:
+      if verbose:
+        print("padding")
+      rdata.pop(0)
+
+  return total_data_length
+
+## assumes first byte is command code
+def split_bytes(s):
+  return re.split("(\w\w)", s)[1::2]
 
 ## format (with alignment, etc) and output a given parameter
 def output_param(param_idx, param_name, val, byte_str=None):
@@ -113,7 +151,7 @@ for param in params:
 	## Specify image transfer order
 	elif pcode == '75':
 		print("Specify image transfer order")
-		#print(" ".join(split_bytes(param)))
+		# print(" ".join(split_bytes(param)))
 		print("\tTransfer order: {} {} {} {} ({} {} {} {})".format(
 			chr(int(args[3], 16)), chr(int(args[4], 16)), chr(int(args[5], 16)), chr(int(args[6], 16)),
 			args[3], args[4], args[5], args[6]
@@ -150,7 +188,35 @@ for param in params:
 		if (big_endian_xfer_size + 3 != len(args)):
 			print("ERROR: improper num bytes sent")
 		
-		print(" ".join(args))
+		# print(" ".join(args[3:]))
+		## DEBUG: FIGURING OUT SIZE OF RASTER TRANSFER
+		raster_stream = args[3:]
+		print(" ".join(raster_stream))
+		total_raster_length = length_of_raster_data(raster_stream)
+		print("length in bytes: {}".format(total_raster_length))
+		
+		
+		
+		## (alternate which elts to include; omit last one bc it's padding)
+		# lengths = args[3::2][:-1]
+		# print(lengths)
+		# print("len: {}".format(len(lengths)))
+		# ncomp = nuncomp = nignore = 0
+		# for byte in lengths:
+			# tc = twoc(byte)
+			# if tc <= -1 and tc >= -127:
+				# ncomp += 1
+			# elif tc >= 0 and tc <= 127:
+				# nuncomp += 1
+			# elif tc == -128:
+				# nignore += 1
+			# else:
+				# print("ERROR")
+				
+		# print("ncomp: {}\nnuncomp: {}\nnignore: {}".format(ncomp, nuncomp, nignore))
+		
+		# print(" ".join(args[3:]))
+		# print(param[6:])
 	
 	## Maintenance commands
 	elif pcode == '6d':
