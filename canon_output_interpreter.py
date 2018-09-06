@@ -14,6 +14,13 @@ import subprocess, sys, re, os
 def split_bytes(s):
   return re.split("(\w\w)", s)[1::2]
 
+def twos_comp(val_str, nbytes=1):
+  import sys
+  val = int(val_str, 16)
+  b = val.to_bytes(nbytes, byteorder=sys.byteorder, signed=False)
+  return int.from_bytes(b, byteorder=sys.byteorder, signed=True)
+
+## format (with alignment, etc) and output a given parameter
 def output_param(param_idx, param_name, val, byte_str=None):
 	num_and_name = "\t({:02d})".format(param_idx) 
 	num_and_name += "{} : ".format(param_name).rjust(39)
