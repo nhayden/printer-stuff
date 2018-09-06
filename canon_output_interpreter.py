@@ -22,7 +22,8 @@ def is_uncompressed(hex_val):
   tc = twos_comp(hex_val)
   return tc >= 0 and tc <= 127
 
-def length_of_raster_data(rdata, verbose=False):
+## Calculates expanded length of raster bytestream based on Canon spec
+def expanded_num_raster_bytes(rdata, verbose=False):
   total_data_length = 0
   while rdata:
     control_byte_decimal = abs(twos_comp(rdata[0])) + 1
@@ -189,34 +190,11 @@ for param in params:
 			print("ERROR: improper num bytes sent")
 		
 		# print(" ".join(args[3:]))
-		## DEBUG: FIGURING OUT SIZE OF RASTER TRANSFER
+
 		raster_stream = args[3:]
+		expanded_raster_byte_length = expanded_num_raster_bytes(raster_stream)
+		print("\tExpanded length in bytes: {}".format(expanded_raster_byte_length))
 		print(" ".join(raster_stream))
-		total_raster_length = length_of_raster_data(raster_stream)
-		print("length in bytes: {}".format(total_raster_length))
-		
-		
-		
-		## (alternate which elts to include; omit last one bc it's padding)
-		# lengths = args[3::2][:-1]
-		# print(lengths)
-		# print("len: {}".format(len(lengths)))
-		# ncomp = nuncomp = nignore = 0
-		# for byte in lengths:
-			# tc = twoc(byte)
-			# if tc <= -1 and tc >= -127:
-				# ncomp += 1
-			# elif tc >= 0 and tc <= 127:
-				# nuncomp += 1
-			# elif tc == -128:
-				# nignore += 1
-			# else:
-				# print("ERROR")
-				
-		# print("ncomp: {}\nnuncomp: {}\nnignore: {}".format(ncomp, nuncomp, nignore))
-		
-		# print(" ".join(args[3:]))
-		# print(param[6:])
 	
 	## Maintenance commands
 	elif pcode == '6d':
