@@ -160,7 +160,7 @@ for param in params:
 		print("\tOther transfer data (masks, etc in hex): {} {} {} {}".format(
 			args[7], args[8], args[9], args[10]
 		))
-		print("\tRaster count: {} (hex: {})".format(
+		print("\tRaster count (bytes per transfer): {} (hex: {})".format(
 			int("".join(args[11:15]), 16), " ".join(args[11:15])
 		))
 		
@@ -189,12 +189,12 @@ for param in params:
 		if (big_endian_xfer_size + 3 != len(args)):
 			print("ERROR: improper num bytes sent")
 		
-		# print(" ".join(args[3:]))
+		print(" ".join(args[3:]))
 
 		raster_stream = args[3:]
 		expanded_raster_byte_length = expanded_num_raster_bytes(raster_stream)
 		print("\tExpanded length in bytes: {}".format(expanded_raster_byte_length))
-		print(" ".join(raster_stream))
+		print(" ".join(raster_stream[:100]))
 	
 	## Maintenance commands
 	elif pcode == '6d':
