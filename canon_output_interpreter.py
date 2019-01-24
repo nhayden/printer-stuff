@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import re
 import sys
 
@@ -79,12 +78,18 @@ def output_param(param_idx, param_name, val, byte_str=None):
 
 with open(sys.argv[1], 'rb') as f:
     hexdata = f.read().hex()
-    params = hexdata.split(r'1b')[1:]
+    split_data = re.split(r"(\w\w)", hexdata)[1:]
+    split_data = split_data[::2]  # skip empties
+    splits = [i for i, v in enumerate(split_data) if v == '1b']
+    params = list()
+    for x in range(len(splits)-1):  # all but last
+        params.append(split_data[splits[x]:splits[x+1]])
+    params.append(split_data[splits[len(splits)-1]:])
 
 for param in params:
-    pcode = param[0:2]
-    args = split_bytes(param)
-    print("args length: {}".format(len(args)))
+    pcode = param[1]
+    args = param[1:]
+    # print("args length: {}".format(len(args)))
 
     # Beginning of job
     if pcode == '4b':
