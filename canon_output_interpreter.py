@@ -75,6 +75,7 @@ with open (sys.argv[1], 'rb') as f:
 for param in params:
 	pcode = param[0:2]
 	args = split_bytes(param)
+	print("args length: {}".format(len(args)))
 	
 	## Beginning of job
 	if pcode == '4b':
@@ -179,6 +180,22 @@ for param in params:
 		print("\tBlock skip: {} (hex: {})".format(
 			int("".join(args[3:5]), 16), " ".join(args[3:5])
 		))
+	
+	## Esc F (block image transfer) (preferred over `Esc f`)
+	elif pcode == '46':
+		print("Esc F (preferred block image transfer)")
+		big_endian_xfer_size = int("".join(args[4:0:-1]), 16)
+		print("\tNumber of bytes being sent: {} (little endian hex: {})".format(
+			big_endian_xfer_size, " ".join(args[1:5])))
+		if (big_endian_xfer_size + 7 != len(args)):
+			print("ERROR: improper num bytes sent; expected: {}, got: {}".format(big_endian_xfer_size+7,len(args)))
+		
+		print(" ".join(args[7:]))
+
+		raster_stream = args[7:]
+		expanded_raster_byte_length = expanded_num_raster_bytes(raster_stream)
+		print("\tExpanded length in bytes: {}".format(expanded_raster_byte_length))
+		print(" ".join(raster_stream[:100]))
 	
 	## Esc f (block image transfer) (undocumented raster transfer)
 	elif pcode == '66':
