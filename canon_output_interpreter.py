@@ -207,7 +207,10 @@ for param in params:
         if big_endian_xfer_size + 7 != len(args):
             print("ERROR: improper num bytes sent; expected: {}, got: {}".format(big_endian_xfer_size + 7, len(args)))
 
-        print(" ".join(args[7:]))
+        last_data_index = len(args[7:])-1
+        last_index_to_print = min(last_data_index, 501)
+        print("last index to print: {}".format(last_index_to_print))
+        print(" ".join(args[7:last_index_to_print]))
 
         raster_stream = args[7:]
         expanded_raster_byte_length = expanded_num_raster_bytes(raster_stream)
