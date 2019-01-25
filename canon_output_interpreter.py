@@ -224,9 +224,12 @@ for param in params:
         print("\tNumber of bytes being sent: {} (little endian hex: {})".format(
             big_endian_xfer_size, " ".join(args[1:3])))
         if big_endian_xfer_size + 3 != len(args):
-            print("ERROR: improper num bytes sent")
+            print("ERROR: improper num bytes sent; expected: {}, got: {}".format(big_endian_xfer_size + 3, len(args)))
 
-        print(" ".join(args[3:]))
+        last_data_index = len(args[3:]) - 1
+        last_index_to_print = min(last_data_index, 501)
+        print("last index to print: {}".format(last_index_to_print))
+        print(" ".join(args[3:last_index_to_print]))
 
         raster_stream = args[3:]
         expanded_raster_byte_length = expanded_num_raster_bytes(raster_stream)
