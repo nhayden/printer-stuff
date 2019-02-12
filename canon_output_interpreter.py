@@ -80,7 +80,14 @@ with open(sys.argv[1], 'rb') as f:
     hexdata = f.read().hex()
     split_data = re.split(r"(\w\w)", hexdata)[1:]
     split_data = split_data[::2]  # skip empties
-    splits = [i for i, v in enumerate(split_data) if v == '1b']
+
+    command_codes = ['K', 'b', 'p', 'n', 'u', 'F', 'f', 'E', 'e', 'm', 's']
+    command_codes_hex = [format(ord(x), "x") for x in command_codes]
+    splits = []
+    for i, v in enumerate(split_data):
+        if v == '1b' and i < len(split_data) - 1 and split_data[i + 1] in command_codes_hex:
+            splits.append(i)
+
     params = list()
     for x in range(len(splits)-1):  # all but last
         params.append(split_data[splits[x]:splits[x+1]])
