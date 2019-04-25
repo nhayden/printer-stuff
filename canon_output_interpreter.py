@@ -261,7 +261,7 @@ for param in params:
         ## cut interval stuff
         print("\tCut interval: {} (hex: {})".format(
             int("".join(args[3:5]), 16), " ".join(args[3:5])), end="")
-        print(" (No cut)") if args[3:5] == ['00', '00'] else print()
+        print(" (No interval cut)") if args[3:5] == ['00', '00'] else print()
 
         ## page vs job end
         print("\tPage|Job: {} (hex: {})".format(
