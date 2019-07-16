@@ -158,7 +158,6 @@ for param in params:
 
         ## Registered form ID
         output_param(20, "Form ID", int("".join(args[32:30:-1]), 16), "".join(args[32:30:-1]))
-        print(" ".join(args[32:30:-1]))
 
         ## Resolution parameters
         output_param(21, "Input horizontal resolution (dpi)", int("".join(args[33:35]), 16), "".join(args[33:35]))
